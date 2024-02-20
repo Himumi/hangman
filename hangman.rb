@@ -3,8 +3,8 @@ class Game
     @random_word = get_random_word
     @choices = (('a'..'z').to_a - %w[a i e u o])
     @lifes = 5
-    @guessing = []
-    @board = make_board(get_random_word)
+    @selected_values = []
+    @board = default_board
   end
 
   def get_random_word
@@ -19,23 +19,64 @@ class Game
       puts 'Please input again!' unless valid_values(input)
 
       if valid_values(input)
-        @guessing.push(input)
+        @selected_values.push(input)
         return input
       end
     end
   end
 
-  def check_guessing(guessing)
-    if @random_word.include?(guessing)
-      @random_word.each_with_index do |item, index|
-        @board[index] = guessing if item == guessing
+  def corrected?(guess)
+    @random_word.include?(guess)
+  end
+
+  def game_over
+    @lifes == 0
+  end
+
+  def over?
+    game_over || (@random_word == @board.join)
+  end
+
+  def give_hints
+    change_board(%w[a e i o u])
+  end
+
+  def change_board(guessing)
+    @random_word.split('').each_with_index do |item, index|
+      if guessing.length == 1 
+        @board[index] = guessing if item == guessing 
+      else
+        guessing.each { |guess| @board[index] = guess if item == guess }
       end
     end
   end
 
   def valid_values(guessing)
-    arr = (@choices - @guessing).include?(guessing)
+    (@choices - @selected_values).include?(guessing)
+  end
+
+  def default_board
+    Array.new(@random_word.length, '_')
+  end
+
+  def display
+    give_hints
+    puts @random_word
+    @board.each_with_index do |item, index|
+      print index == @board.length - 1 ? "#{item}\n" : "#{item} "
+    end
+  end
+
+  def play
+    loop do
+      puts"Lifes =  #{@lifes}"
+      display
+      guess = get_guessing
+      corrected?(guess) ? change_board(guess) : @lifes -= 1
+      return puts "Game is over!!" if over?
+    end
   end
 end
 
 game = Game.new
+game.play
