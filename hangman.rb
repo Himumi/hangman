@@ -37,43 +37,49 @@ class Game
     game_over || (@random_word == @board.join)
   end
 
-  def give_hints
-    change_board(%w[a e i o u])
-  end
-
-  def change_board(guessing)
-    @random_word.split('').each_with_index do |item, index|
-      if guessing.length == 1 
-        @board[index] = guessing if item == guessing 
-      else
-        guessing.each { |guess| @board[index] = guess if item == guess }
-      end
-    end
-  end
-
   def valid_values(guessing)
     (@choices - @selected_values).include?(guessing)
+  end
+
+  def give_hints
+    change_board(%w[a e i o u])
   end
 
   def default_board
     Array.new(@random_word.length, '_')
   end
 
-  def display
-    give_hints
-    puts @random_word
+  def change_board(guessing)
+    @random_word.split('').each_with_index do |item, index|
+      if guessing.length == 1
+        @board[index] = guessing if item == guessing
+      else
+        guessing.each { |guess| @board[index] = guess if item == guess }
+      end
+    end
+  end
+
+  def print_board
     @board.each_with_index do |item, index|
       print index == @board.length - 1 ? "#{item}\n" : "#{item} "
     end
   end
+  def display
+    p(@choices - @selected_values)
+    give_hints
+    puts ''
+    puts @random_word
+    print_board
+    puts ''
+  end
 
   def play
     loop do
-      puts"Lifes =  #{@lifes}"
+      puts "Lifes =  #{@lifes}"
       display
       guess = get_guessing
       corrected?(guess) ? change_board(guess) : @lifes -= 1
-      return puts "Game is over!!" if over?
+      return puts 'Game is over!!' if over?
     end
   end
 end
