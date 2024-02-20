@@ -42,7 +42,7 @@ class Game
   end
 
   def give_hints
-    change_board(%w[a e i o u])
+    change_board("aeiuo")
   end
 
   def default_board
@@ -51,11 +51,7 @@ class Game
 
   def change_board(guessing)
     @random_word.split('').each_with_index do |item, index|
-      if guessing.length == 1
-        @board[index] = guessing if item == guessing
-      else
-        guessing.each { |guess| @board[index] = guess if item == guess }
-      end
+      guessing.split("").each { |guess| @board[index] = guess if item == guess }
     end
   end
 
@@ -64,6 +60,7 @@ class Game
       print index == @board.length - 1 ? "#{item}\n" : "#{item} "
     end
   end
+
   def display
     p(@choices - @selected_values)
     give_hints
