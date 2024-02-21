@@ -1,3 +1,58 @@
+module Draw
+  def draw(lifes)
+    case lifes
+    when 5
+      puts ''
+      puts '+'
+      puts '+'
+      puts '+'
+      puts '+'
+      puts '+'
+      puts '+'
+    when 4
+      puts ''
+      puts '++++++'
+      puts '+'
+      puts '+'
+      puts '+'
+      puts '+'
+      puts '+'
+    when 3
+      puts ''
+      puts '++++++'
+      puts '+'
+      puts '+    o'
+      puts '+'
+      puts '+'
+      puts '+'
+    when 2
+      puts ''
+      puts '++++++'
+      puts '+'
+      puts '+    o'
+      puts '+   -+-'
+      puts '+'
+      puts '+'
+    when 1
+      puts ''
+      puts '++++++'
+      puts '+'
+      puts '+    o'
+      puts '+   -+-'
+      puts '+    ^'
+      puts '+'
+    when 0
+      puts ''
+      puts '++++++'
+      puts '+    |'
+      puts '+    o'
+      puts '+   -+-'
+      puts '+    ^'
+      puts '+'
+    end
+  end
+end
+
 class Word
   def initialize
     @choices = ('a'..'z').to_a - %w[a i e u o]
@@ -33,10 +88,11 @@ class Word
 end
 
 class Game
+  include Draw
   def initialize(word)
     @word = word.new
     @random_word = @word.get_random_word
-    @lifes = 5
+    @lifes = 6
     @board = default_board
   end
 
@@ -45,7 +101,12 @@ class Game
   end
 
   def check_guessing(guessing)
-    corrected?(guessing) ? change_board(guessing) : @lifes -= 1
+    corrected?(guessing) ? change_board(guessing) : wrong_guessing
+  end
+  
+  def wrong_guessing
+    @lifes -= 1
+    puts draw(@lifes)
   end
 
   def game_over
@@ -94,7 +155,7 @@ class Game
     puts 'You will provide with hints of vowel sounds, and printed'
     puts 'board of available char like this./n'
     print_available_choices
-    puts 'You are just given 5 lifes for each game. Every mistake that'
+    puts 'You are just given 6 lifes for each game. Every mistake that'
     puts "you do program will draw hangman. don't die easily!!!"
   end
 
