@@ -1,10 +1,9 @@
-class Game
+class Word
+  attr_accessor :choices, :selected_values, :available_choices
+
   def initialize
-    @random_word = get_random_word
-    @choices = (('a'..'z').to_a - %w[a i e u o])
-    @lifes = 5
+    @choices = ('a'..'z').to_a - %w[a i e u o]
     @selected_values = []
-    @board = default_board
   end
 
   def get_random_word
@@ -25,6 +24,23 @@ class Game
     end
   end
 
+  def valid_values(guessing)
+    available_choices.include?(guessing)
+  end
+
+  def available_choices
+    @choices - @selected_values
+  end
+end
+
+class Game
+  def initialize(word)
+    @word = word.new
+    @random_word = @word.get_random_word
+    @lifes = 5
+    @board = default_board
+  end
+
   def corrected?(guess)
     @random_word.include?(guess)
   end
@@ -37,12 +53,8 @@ class Game
     game_over || (@random_word == @board.join)
   end
 
-  def valid_values(guessing)
-    (@choices - @selected_values).include?(guessing)
-  end
-
   def give_hints
-    change_board("aeiuo")
+    change_board('aeiuo')
   end
 
   def default_board
@@ -51,35 +63,48 @@ class Game
 
   def change_board(guessing)
     @random_word.split('').each_with_index do |item, index|
-      guessing.split("").each { |guess| @board[index] = guess if item == guess }
+      guessing.split('').each { |guess| @board[index] = guess if item == guess }
     end
   end
 
   def print_board
     @board.each_with_index do |item, index|
-      print index == @board.length - 1 ? "#{item}\n" : "#{item} "
+      print index == @board.length - 1 ? "#{item.upcase}\n\n" : "#{item.upcase} "
     end
   end
 
+  def print_available_choices
+    @word.available_choices.join("|").upcase
+  end
+
   def display
-    p(@choices - @selected_values)
     give_hints
-    puts ''
+    puts "\nAvailable choices => #{print_available_choices}"
     puts @random_word
     print_board
-    puts ''
+  end
+
+  def start_message
+    puts "\nWelcome to Hangman game made by me. It is a simple game"
+    puts "that you must guess every char of random word./n"
+    puts "You will provide with hints of vowel sounds, and printed"
+    puts "board of available char like this./n"
+    puts "\nAvailable choices => #{print_available_choices}/n"
+    puts "You are just given 5 lifes for each game. Every mistake that"
+    puts "you do program will draw hangman. don't die easily!!!"
   end
 
   def play
+    start_message
     loop do
-      puts "Lifes =  #{@lifes}"
+      puts "\nLifes =>  #{@lifes}"
       display
-      guess = get_guessing
+      guess = @word.get_guessing
       corrected?(guess) ? change_board(guess) : @lifes -= 1
-      return puts 'Game is over!!' if over?
+      return puts "\nGame is over!! Random word was '#{@random_word.upcase}'" if over?
     end
   end
 end
 
-game = Game.new
+game = Game.new(Word)
 game.play
