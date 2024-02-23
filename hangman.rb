@@ -1,87 +1,6 @@
 require 'json'
-
-module Draw
-  def draw(lifes)
-    case lifes
-    when 5
-      puts ''
-      puts '+'
-      puts '+'
-      puts '+'
-      puts '+'
-      puts '+'
-      puts '+'
-    when 4
-      puts ''
-      puts '++++++'
-      puts '+'
-      puts '+'
-      puts '+'
-      puts '+'
-      puts '+'
-    when 3
-      puts ''
-      puts '++++++'
-      puts '+'
-      puts '+    o'
-      puts '+'
-      puts '+'
-      puts '+'
-    when 2
-      puts ''
-      puts '++++++'
-      puts '+'
-      puts '+    o'
-      puts '+   -+-'
-      puts '+'
-      puts '+'
-    when 1
-      puts ''
-      puts '++++++'
-      puts '+'
-      puts '+    o'
-      puts '+   -+-'
-      puts '+    ^'
-      puts '+'
-    when 0
-      puts ''
-      puts '++++++'
-      puts '+    |'
-      puts '+    o'
-      puts '+   -+-'
-      puts '+    ^'
-      puts '+'
-    end
-  end
-end
-
-class Word
-  attr_accessor :selected_values
-
-  def initialize
-    @choices = ('a'..'z').to_a - %w[a i e u o]
-    @selected_values = []
-  end
-
-  def get_random_word
-    File.readlines('google-10000-english-no-swears.txt', chomp: true).select do |item|
-      (5..12).include?(item.length)
-    end.sample
-  end
-
-  def get_guessing(guess)
-      @selected_values.push(guess)
-  end
-
-  def valid_values(guessing)
-    available_choices.include?(guessing)
-  end
-
-  def available_choices
-    @choices - @selected_values
-  end
-end
-
+require './word.rb'
+require './draw.rb'
 class Game
   include Draw
   def initialize(word)
@@ -93,6 +12,7 @@ class Game
     @lifes = 6
     @board = default_board
     @word.selected_values = []
+    File.delete('saved_game.json') if File.exist?('saved_game.json')
     start_message
   end
 
@@ -131,17 +51,17 @@ class Game
       exit
     when 2
       new_game
-    when 3 
+    when 3
       exit
     end
   end
 
   def ask_game
-    if File.exist?("saved_game.json")
+    if File.exist?('saved_game.json')
       loop do
         saved_game_exist_message
         input = gets.chomp.to_i
-        puts "Please select game" unless (1..2).include?(input)
+        puts 'Please select game' unless (1..2).include?(input)
         return input == 1 ? load_game : new_game
       end
     else
@@ -156,13 +76,11 @@ class Game
       number = input.to_i
       char = input.downcase
       puts 'Please input again!' unless @word.valid_values(char) || (1..3).include?(number)
-      if @word.valid_values(char) 
+      if @word.valid_values(char)
         @word.get_guessing(char)
         return check_guessing(char)
       end
-      if (1..3).include?(number) 
-        return menu_game(number)
-      end
+      return menu_game(number) if (1..3).include?(number)
     end
   end
 
@@ -171,11 +89,7 @@ class Game
   end
 
   def check_guessing(guessing)
-    corrected?(guessing) ? change_board(guessing) : wrong_guessing
-  end
-
-  def wrong_guessing
-    @lifes -= 1
+    corrected?(guessing) ? change_board(guessing) : @lifes -= 1
   end
 
   def game_over
@@ -215,7 +129,7 @@ class Game
     give_hints
     print_available_choices
     puts @random_word # Hint for debugging
-    print "=> "
+    print '=> '
     print_board
     puts draw(@lifes)
   end
@@ -231,19 +145,19 @@ class Game
   end
 
   def menu_text
-    puts "Menu"
-    puts "1. Save game"
-    puts "2. New game"
-    puts "3. Exit"
-    puts ""
-    puts "Please input any char!"
-    puts ""    
+    puts 'Menu'
+    puts '1. Save game'
+    puts '2. New game'
+    puts '3. Exit'
+    puts ''
+    puts 'Please input any char!'
+    puts ''
   end
 
   def saved_game_exist_message
-    puts "Do you wanna continue game?"
-    puts "1. Continue Game"
-    puts "2. New Game"
+    puts 'Do you wanna continue game?'
+    puts '1. Continue Game'
+    puts '2. New Game'
   end
 
   def play
