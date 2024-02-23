@@ -76,13 +76,17 @@ class Game
     when 2
       new_game
     when 3
-      loop do
-        exit_agreement_message
-        input = gets.chomp.to_i
-        puts 'You entered wrong value!!'.fg_color(:red) unless (1..2).include?(input)
-        exit if input == 1
-        return if input == 2
-      end
+      clean_exit
+    end
+  end
+
+  def clean_exit
+    loop do
+      exit_agreement_message
+      input = gets.chomp.to_i
+      puts 'You entered wrong value!!'.fg_color(:red) unless (1..2).include?(input)
+      exit if input == 1
+      return if input == 2
     end
   end
 
