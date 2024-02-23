@@ -1,6 +1,6 @@
 require 'json'
-require './word.rb'
-require './draw.rb'
+require './word'
+require './draw'
 class Game
   include Draw
   def initialize(word)
@@ -57,12 +57,9 @@ class Game
       new_game
     when 3
       loop do
-        puts "Do you really wanna exit without save game??"
-        puts ""
-        puts "1. no"
-        puts "2. yes"
+        exit_agreement_message
         input = gets.chomp
-        puts "Please input again!!" unless (1..2).include?(input.to_i)
+        puts 'You entered wrong value!!' unless (1..2).include?(input.to_i)
         input.to_i == 1 ? return : exit
       end
     end
@@ -148,10 +145,18 @@ class Game
 
   def start_message
     puts "\nWelcome to Hangman game made by me. It is a simple game"
-    puts 'that you must guess every char of random word./n'
+    puts 'that you must guess every char of random word.'
     puts 'You will provide with hints of vowel sounds, and printed'
     puts "board of available char like this.\n"
     print_available_choices
+    puts 'You just enter number for each menu. Not the text'
+    puts ''
+    puts 'Do you wanna continue game?'
+    puts '1. Continue Game'
+    puts '2. New Game'
+    puts ''
+    puts 'Enter : 2 #to exit'
+    puts ''
     puts 'You are just given 6 lifes for each game. Every mistake that'
     puts "you do program will draw hangman. don't die easily!!!"
   end
@@ -175,6 +180,13 @@ class Game
   def game_over_message
     delete_saved_game_if_exist
     puts "\nGame is over!!\n\nRandom word was '#{@random_word.upcase}'"
+  end
+
+  def exit_agreement_message
+    puts 'Do you really wanna exit without save game??'
+    puts ''
+    puts '1. No'
+    puts '2. Yes'
   end
 
   def play
