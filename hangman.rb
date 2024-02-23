@@ -15,7 +15,10 @@ class Game
       display
       get_input
       puts draw(@lifes) # It will excute if @lifes' values is changed
-      return game_over_message if over?
+      if over?
+        game_over_message
+        return delete_saved_game_if_exist
+      end
     end
   end
 
@@ -196,7 +199,6 @@ class Game
   end
 
   def game_over_message
-    delete_saved_game_if_exist
     puts 'Game is over!!'.fg_color(:red)
     puts 'Random word was ' + @random_word.upcase.fg_color(:green)
   end
