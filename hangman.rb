@@ -12,19 +12,19 @@ class Game
   def play
     ask_game
     loop do
-      display
-      get_input
       puts draw(@lifes) # It will excute if @lifes' values is changed
       if over?
         game_over_message
         return delete_saved_game_if_exist
       end
+      display
+      get_input
     end
   end
 
   protected
 
-  # Game Menu Fucntions
+  # Game Menu Functions
   def new_game
     @random_word = @word.get_random_word
     @lifes = 6
@@ -45,6 +45,7 @@ class Game
     File.open('saved_game.json', 'w') do |file|
       file.puts JSON.dump(game_data)
     end
+    puts ''
     puts 'Game is saved'.fg_color(:green)
   end
 
@@ -52,6 +53,7 @@ class Game
     data = JSON.parse(File.read('saved_game.json'))
     set_loaded_game_values(data)
     start_message
+    puts ''
     puts 'Saved game is loaded'.fg_color(:green)
   end
 
@@ -69,16 +71,17 @@ class Game
   def menu_game(input)
     case input
     when 1
+      delete_saved_game_if_exist
       save_game
-      exit
     when 2
       new_game
     when 3
       loop do
         exit_agreement_message
-        input = gets.chomp
-        puts 'You entered wrong value!!'.fg_color(:red) unless (1..2).include?(input.to_i)
-        input.to_i == 1 ? return : exit
+        input = gets.chomp.to_i
+        puts 'You entered wrong value!!'.fg_color(:red) unless (1..2).include?(input)
+        exit if input == 1
+        return if input == 2
       end
     end
   end
@@ -97,7 +100,6 @@ class Game
   end
 
   def get_input
-    menu_text
     loop do
       input = gets.chomp
       check_input = @word.valid_values(input.downcase) || (1..3).include?(input.to_i)
@@ -116,7 +118,7 @@ class Game
     end
   end
 
-  # Conditional Functions
+  # Over Conditional Functions
   def corrected?(guess)
     @random_word.include?(guess)
   end
@@ -159,29 +161,35 @@ class Game
     puts "\nAvailable choices => " + @word.available_choices.join('|').upcase.fg_color(:cyan)
   end
 
-  def display
+  def print_lifes
     puts "\nLifes".fg_color(:cyan) + ' => ' + "#{@lifes}".fg_color(:green)
+  end
+
+  def display
     give_hints
+    print_lifes
     print_available_choices
     puts @random_word # Hint for debugging
     print '=> '
     print_board
+    menu_text
   end
 
-  # Message Fucntions
+  # Message Functions
   def start_message
     puts "\nWelcome to Hangman game made by me. It is a simple game"
     puts 'that you must guess every char of random word.'
     puts 'You will provide with hints of vowel sounds, and printed'
     puts "board of available char like this.\n"
     print_available_choices
+    puts ''
     puts 'You just enter number for each menu. Not the text'
     puts ''
     puts 'Do you wanna continue game?'.fg_color(:red)
     puts '1. Continue Game'
     puts '2. New Game'
     puts ''
-    puts 'Enter : 2 #to exit'
+    puts 'Enter : 2 #to new game'
     puts ''
     puts 'You are just given 6 lifes for each game. Every mistake that'
     puts "you do program will draw hangman. don't die easily!!!"
@@ -199,7 +207,7 @@ class Game
   end
 
   def saved_game_exist_message
-    puts 'Do you wanna continue game?'.fg_color(:green)
+    puts 'Do you wanna continue game or new game?'.fg_color(:green)
     puts '1. Continue Game'
     puts '2. New Game'
   end
@@ -212,8 +220,8 @@ class Game
   def exit_agreement_message
     puts 'Do you really wanna exit without save game??'.fg_color(:red)
     puts ''
-    puts '1. No'
-    puts '2. Yes'
+    puts '1. Yes'
+    puts '2. No'
   end
 end
 
