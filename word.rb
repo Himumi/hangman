@@ -12,7 +12,7 @@ class Word
       end.sample
     end
   
-    def get_guessing(guess)
+    def add_to_selected_values(guess)
       @selected_values.push(guess)
     end
   
