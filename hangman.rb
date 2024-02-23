@@ -1,3 +1,5 @@
+require 'json'
+
 module Draw
   def draw(lifes)
     case lifes
@@ -54,6 +56,8 @@ module Draw
 end
 
 class Word
+  attr_accessor :selected_values
+
   def initialize
     @choices = ('a'..'z').to_a - %w[a i e u o]
     @selected_values = []
@@ -65,17 +69,8 @@ class Word
     end.sample
   end
 
-  def get_guessing
-    puts 'Please input any char!'
-    loop do
-      input = gets.chomp.downcase
-      puts 'Please input again!' unless valid_values(input)
-
-      if valid_values(input)
-        @selected_values.push(input)
-        return input
-      end
-    end
+  def get_guessing(guess)
+      @selected_values.push(guess)
   end
 
   def valid_values(guessing)
@@ -91,9 +86,84 @@ class Game
   include Draw
   def initialize(word)
     @word = word.new
+  end
+
+  def new_game
     @random_word = @word.get_random_word
     @lifes = 6
     @board = default_board
+    @word.selected_values = []
+    start_message
+  end
+
+  def save_game
+    game_data = {
+      random_word: @random_word,
+      selected_values: @word.selected_values,
+      lifes: @lifes,
+      board: @board
+    }
+    File.open('saved_game.json', 'w') do |file|
+      file.puts JSON.dump(game_data)
+    end
+    puts 'Game is saved'
+  end
+
+  def load_game
+    data = JSON.parse(File.read('saved_game.json'))
+    set_loaded_game(data)
+    File.delete('saved_game.json')
+    start_message
+    puts 'Saved game is loaded'
+  end
+
+  def set_loaded_game(data)
+    @random_word = data['random_word']
+    @word.selected_values = data['selected_values']
+    @lifes = data['lifes']
+    @board = data['board']
+  end
+
+  def menu_game(input)
+    case input
+    when 1
+      save_game
+      exit
+    when 2
+      new_game
+    when 3 
+      exit
+    end
+  end
+
+  def ask_game
+    if File.exist?("saved_game.json")
+      loop do
+        saved_game_exist_message
+        input = gets.chomp.to_i
+        puts "Please select game" unless (1..2).include?(input)
+        return input == 1 ? load_game : new_game
+      end
+    else
+      new_game
+    end
+  end
+
+  def get_input
+    menu_text
+    loop do
+      input = gets.chomp
+      number = input.to_i
+      char = input.downcase
+      puts 'Please input again!' unless @word.valid_values(char) || (1..3).include?(number)
+      if @word.valid_values(char) 
+        @word.get_guessing(char)
+        return check_guessing(char)
+      end
+      if (1..3).include?(number) 
+        return menu_game(number)
+      end
+    end
   end
 
   def corrected?(guess)
@@ -103,10 +173,9 @@ class Game
   def check_guessing(guessing)
     corrected?(guessing) ? change_board(guessing) : wrong_guessing
   end
-  
+
   def wrong_guessing
     @lifes -= 1
-    puts draw(@lifes)
   end
 
   def game_over
@@ -126,8 +195,8 @@ class Game
   end
 
   def change_board(guessing)
-    @random_word.split('').each_with_index do |item, index|
-      guessing.split('').each { |guess| @board[index] = guess if item == guess }
+    @random_word.chars.each_with_index do |item, index|
+      guessing.chars.each { |guess| @board[index] = guess if item == guess }
     end
   end
 
@@ -146,25 +215,42 @@ class Game
     give_hints
     print_available_choices
     puts @random_word # Hint for debugging
+    print "=> "
     print_board
+    puts draw(@lifes)
   end
 
   def start_message
     puts "\nWelcome to Hangman game made by me. It is a simple game"
     puts 'that you must guess every char of random word./n'
     puts 'You will provide with hints of vowel sounds, and printed'
-    puts 'board of available char like this./n'
+    puts "board of available char like this.\n"
     print_available_choices
     puts 'You are just given 6 lifes for each game. Every mistake that'
     puts "you do program will draw hangman. don't die easily!!!"
   end
 
+  def menu_text
+    puts "Menu"
+    puts "1. Save game"
+    puts "2. New game"
+    puts "3. Exit"
+    puts ""
+    puts "Please input any char!"
+    puts ""    
+  end
+
+  def saved_game_exist_message
+    puts "Do you wanna continue game?"
+    puts "1. Continue Game"
+    puts "2. New Game"
+  end
+
   def play
-    start_message
+    ask_game
     loop do
       display
-      guess = @word.get_guessing
-      check_guessing(guess)
+      get_input
       return puts "\nGame is over!!\n\nRandom word was '#{@random_word.upcase}'" if over?
     end
   end
