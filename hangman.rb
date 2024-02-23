@@ -12,11 +12,12 @@ class Game
     @lifes = 6
     @board = default_board
     @word.selected_values = []
-    File.delete('saved_game.json') if File.exist?('saved_game.json')
+    delete_saved_game_if_exist
     start_message
   end
 
   def save_game
+    delete_saved_game
     game_data = {
       random_word: @random_word,
       selected_values: @word.selected_values,
@@ -32,7 +33,6 @@ class Game
   def load_game
     data = JSON.parse(File.read('saved_game.json'))
     set_loaded_game(data)
-    File.delete('saved_game.json')
     start_message
     puts 'Saved game is loaded'
   end
@@ -42,6 +42,10 @@ class Game
     @word.selected_values = data['selected_values']
     @lifes = data['lifes']
     @board = data['board']
+  end
+
+  def delete_saved_game_if_exist
+    File.delete('saved_game.json') if File.exist?('saved_game.json')
   end
 
   def menu_game(input)
@@ -160,12 +164,17 @@ class Game
     puts '2. New Game'
   end
 
+  def game_over_message
+    delete_saved_game_if_exist
+    puts "\nGame is over!!\n\nRandom word was '#{@random_word.upcase}'"
+  end
+
   def play
     ask_game
     loop do
       display
       get_input
-      return puts "\nGame is over!!\n\nRandom word was '#{@random_word.upcase}'" if over?
+      return game_over_message if over?
     end
   end
 end
