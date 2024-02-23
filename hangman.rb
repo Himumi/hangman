@@ -91,8 +91,9 @@ class Game
       loop do
         saved_game_exist_message
         input = gets.chomp.to_i
-        puts 'Please select game'.fg_color(:green) unless (1..2).include?(input)
-        return input == 1 ? load_game : new_game
+        puts 'Please select game'.fg_color(:red) unless (1..2).include?(input)
+        return  load_game if input == 1
+        return new_game if input == 2
       end
     else
       new_game
