@@ -56,7 +56,15 @@ class Game
     when 2
       new_game
     when 3
-      exit
+      loop do
+        puts "Do you really wanna exit without save game??"
+        puts ""
+        puts "1. no"
+        puts "2. yes"
+        input = gets.chomp
+        puts "Please input again!!" unless (1..2).include?(input.to_i)
+        input.to_i == 1 ? return : exit
+      end
     end
   end
 
