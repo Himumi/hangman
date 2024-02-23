@@ -45,16 +45,14 @@ class Game
     File.open('saved_game.json', 'w') do |file|
       file.puts JSON.dump(game_data)
     end
-    puts ''
-    puts 'Game is saved'.fg_color(:green)
+    saved_game_message
   end
 
   def load_game
     data = JSON.parse(File.read('saved_game.json'))
     set_loaded_game_values(data)
     start_message
-    puts ''
-    puts 'Saved game is loaded'.fg_color(:green)
+    load_game_message
   end
 
   def set_loaded_game_values(data)
@@ -84,7 +82,7 @@ class Game
     loop do
       exit_agreement_message
       input = gets.chomp.to_i
-      puts 'You entered wrong value!!'.fg_color(:red) unless (1..2).include?(input)
+      wrong_input_message unless (1..2).include?(input)
       exit if input == 1
       return if input == 2
     end
@@ -95,7 +93,7 @@ class Game
       loop do
         saved_game_exist_message
         input = gets.chomp.to_i
-        puts 'Please select game'.fg_color(:red) unless (1..2).include?(input)
+        wrong_input_message unless (1..2).include?(input)
         return  load_game if input == 1
         return new_game if input == 2
       end
@@ -110,7 +108,7 @@ class Game
       check_input = @word.valid_values(input.downcase) || (1..3).include?(input.to_i)
       return clean_get_input(input) if check_input == true
 
-      puts 'Please input again!'.fg_color(:red) unless check_input == true
+      wrong_input_message unless check_input == true
     end
   end
 
@@ -227,6 +225,20 @@ class Game
     puts ''
     puts '1. Yes'
     puts '2. No'
+  end
+
+  def saved_game_message
+    puts ''
+    puts 'Game is saved'.fg_color(:green)
+  end
+
+  def load_game_message
+    puts ''
+    puts 'Saved game is loaded'.fg_color(:green)
+  end
+
+  def wrong_input_message
+    puts 'You entered wrong value!!'.fg_color(:red)
   end
 end
 
