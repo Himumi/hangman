@@ -100,14 +100,19 @@ class Game
     menu_text
     loop do
       input = gets.chomp
-      number = input.to_i
-      char = input.downcase
-      puts 'Please input again!'.fg_color(:red) unless @word.valid_values(char) || (1..3).include?(number)
-      if @word.valid_values(char)
-        @word.add_to_selected_values(char)
-        return check_guessing(char)
-      end
-      return menu_game(number) if (1..3).include?(number)
+      check_input = @word.valid_values(input.downcase) || (1..3).include?(input.to_i)
+      return clean_get_input(input) if check_input == true
+
+      puts 'Please input again!'.fg_color(:red) unless check_input == true
+    end
+  end
+
+  def clean_get_input(input)
+    if (1..3).include?(input.to_i)
+      menu_game(input.to_i)
+    else
+      @word.add_to_selected_values(input.downcase)
+      check_guessing(input.downcase)
     end
   end
 
@@ -183,6 +188,7 @@ class Game
   end
 
   def menu_text
+    puts ''
     puts 'Menu'.fg_color(:green)
     puts '1. Save game'
     puts '2. New game'
