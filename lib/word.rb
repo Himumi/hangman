@@ -7,7 +7,7 @@ class Word
     end
   
     def get_random_word
-      File.readlines('google-10000-english-no-swears.txt', chomp: true).select do |item|
+      File.readlines('./google-10000-english-no-swears.txt', chomp: true).select do |item|
         (5..12).include?(item.length)
       end.sample
     end

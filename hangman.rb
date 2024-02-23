@@ -1,7 +1,7 @@
 require 'json'
-require './word'
-require './draw'
-require './color'
+require './lib/word'
+require './lib/draw'
+require './lib/color'
 class Game
   include Draw
   using ColorableString
